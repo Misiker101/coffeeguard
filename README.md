@@ -4,6 +4,8 @@ An end-to-end, production-style machine learning system: data → training with
 experiment tracking → containerized serving API → CI/CD → cloud deployment →
 live monitoring and drift detection. Built entirely on free infrastructure.
 
+**Live demo:** `https://coffeeguard-rapy.onrender.com`
+
 
 ## Why this project
 

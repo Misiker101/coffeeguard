@@ -20,6 +20,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from torchvision import transforms
 
+import pillow_heif
+# Registers a PIL-compatible decoder for HEIC/HEIF — the default photo
+# format on iPhones. Without this, any photo picked from an iOS photo
+# library (not just the camera) fails Image.open() with a 400, even
+# though the upload itself succeeded — this is the most common cause
+# of an intermittent 400 from real phones.
+pillow_heif.register_heif_opener()
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
 from model import CLASS_NAMES, load_model_for_inference  # noqa: E402
 
@@ -93,15 +101,24 @@ def health():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    if file.content_type not in ("image/jpeg", "image/png"):
-        raise HTTPException(status_code=400, detail="Upload a JPEG or PNG image")
-
     if _model is None:
         raise HTTPException(status_code=503, detail="Model not loaded on server")
 
     start = time.time()
     raw = await file.read()
-    image = Image.open(io.BytesIO(raw)).convert("RGB")
+
+    # Don't trust the client-supplied content_type header — different
+    # phones/OSes send inconsistent or missing values for it (e.g.
+    # "image/jpg", empty, or "application/octet-stream"). Instead, try to
+    # actually decode the bytes as an image; that's the real validation.
+    try:
+        image = Image.open(io.BytesIO(raw)).convert("RGB")
+    except Exception:
+        raise HTTPException(
+            status_code=400,
+            detail="Could not read that file as an image. Please upload a JPEG or PNG.",
+        )
+
     tensor = _transform(image).unsqueeze(0)
 
     with torch.no_grad():
