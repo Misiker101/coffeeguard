@@ -101,16 +101,11 @@ def health():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    if _model is None:
-        raise HTTPException(status_code=503, detail="Model not loaded on server")
-
     start = time.time()
     raw = await file.read()
 
     # Don't trust the client-supplied content_type header — different
-    # phones/OSes send inconsistent or missing values for it (e.g.
-    # "image/jpg", empty, or "application/octet-stream"). Instead, try to
-    # actually decode the bytes as an image; that's the real validation.
+    # phones/OSes send inconsistent or missing values for it 
     try:
         image = Image.open(io.BytesIO(raw)).convert("RGB")
     except Exception:
@@ -118,6 +113,9 @@ async def predict(file: UploadFile = File(...)):
             status_code=400,
             detail="Could not read that file as an image. Please upload a JPEG or PNG.",
         )
+
+    if _model is None:
+        raise HTTPException(status_code=503, detail="Model not loaded on server")
 
     tensor = _transform(image).unsqueeze(0)
 
