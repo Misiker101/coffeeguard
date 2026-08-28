@@ -1,4 +1,4 @@
-# 🌿 CoffeeGuard - End-to-End MLOps Platform for Coffee Leaf Disease Detection
+# CoffeeGuard - End-to-End MLOps Platform for Coffee Leaf Disease Detection
 
 An end-to-end, production-style machine learning system: data → training with
 experiment tracking → containerized serving API → CI/CD → cloud deployment →
