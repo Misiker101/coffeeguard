@@ -51,3 +51,26 @@ just a Jupyter notebook.
 | Deployment | Render (free web service, Docker build) | Free, public URL  |
 | Monitoring | Evidently AI (drift) + SQLite prediction log + Streamlit dashboard | Free |
 | Testing | pytest | Unit + API contract tests |
+
+## Project structure
+```
+coffeeguard/
+├── app/main.py              # FastAPI inference service
+├── src/model.py             # Model architecture
+├── src/train.py             # Training + MLflow tracking
+├── tests/test_api.py        # API tests
+├── monitoring/drift_report.py   # Evidently drift analysis
+├── monitoring/dashboard.py      # Streamlit monitoring UI
+├── Dockerfile
+├── .github/workflows/ci-cd.yml  # CI/CD pipeline
+├── requirements.txt
+└── requirements-dev.txt
+```
+
+## Mobile app
+A companion Flutter app (`coffeeguard_mobile/`, separate project) lets you take
+or pick a photo and get the diagnosis + care tip directly from your phone,
+calling this same `/predict` endpoint. See its own README for setup.
+
+## License
+MIT
